@@ -567,3 +567,136 @@ model_bym_re_rw2_1 <- inla(formula_bym_re_rw2_1,data=dfaddress,family="binomial"
 summary(model_bym_re_rw2_1)
 
 
+
+RE_bym <- model_bym$summary.random$District[2]
+district_means_bym <- as.data.frame(cbind(unique(bang_map$id), RE_bym))
+colnames(district_means_bym) <- c("District", "District_Mean")
+
+m1_bym <- ggplot() + 
+  geom_map(data = district_means_bym, 
+           aes(map_id = District, fill = District_Mean),map = bang_map) + 
+  expand_limits(x = bang_map$long, y = bang_map$lat) + 
+  scale_fill_gradient2(low = "white",mid = "pink",
+                       midpoint = (max(district_means_bym$District_Mean) + 
+                                     min(district_means_bym$District_Mean))/2,high = "red",
+                       limits=c(min(district_means_bym$District_Mean),
+                                max(district_means_bym$District_Mean)), na.value="grey50") +
+  geom_text(data = district_centroid, aes(x = longc, y = latc, label = id), check_overlap = TRUE, size = 3)
+
+m1_bym
+
+
+
+
+RE_bym_re <- model_bym_re$summary.random$District[2]
+district_means_bym_re <- as.data.frame(cbind(unique(bang_map$id), RE_bym_re))
+colnames(district_means_bym_re) <- c("District", "District_Mean")
+
+m1_bym_re <- ggplot() + 
+  geom_map(data = district_means_bym_re, 
+           aes(map_id = District, fill = District_Mean),map = bang_map) + 
+  expand_limits(x = bang_map$long, y = bang_map$lat) + 
+  scale_fill_gradient2(low = "white",mid = "pink",
+                       midpoint = (max(district_means_bym_re$District_Mean) + 
+                                     min(district_means_bym_re$District_Mean))/2,high = "red",
+                       limits=c(min(district_means_bym_re$District_Mean),
+                                max(district_means_bym_re$District_Mean)), na.value="grey50") +
+  geom_text(data = district_centroid, aes(x = longc, y = latc, label = id), check_overlap = TRUE, size = 3)
+
+m1_bym_re
+
+
+
+
+# For cohabitation age
+age <- unique(dfaddress$cohabAgeC)
+agelabel <- c("10", "15", "20", "25", "30", "35", "45", "40", "49")
+
+
+post.mean.age <- model_besag_re$summary.random$cohabAgeC[, "mean"]
+post.li.age <- model_besag_re$summary.random$cohabAgeC[, "0.025quant"]
+post.ui.age <- model_besag_re$summary.random$cohabAgeC[, "0.975quant"]
+
+par(las=1)  ## cosmetic: horizontal y-axis labels are nicer
+plotCI(1:length(age),post.mean.age,ui=post.ui.age,li=post.li.age,col="blue",scol="black",
+       axes=FALSE,   ## disable axes (including tick labels)
+       xlab="First Cohabitation Age",      ## suppress x-axis label
+       ylab = "Partial effect of cohabitation age",
+       ylim=c(-1,1),   ## specify y-axis limits
+       cex=1.5,
+       cex.lab = 1.5,
+       cex.axis = 1.5
+)
+axis(side=2)         ## add default y-axis (ticks+labels)
+axis(side=1,at=c(1, 61, 121, 181, 241, 263, 269, 271, 272),  ## add custom x-axis
+     label=agelabel)
+box(bty="l")         ## add box
+abline(h=0, lty=4, col="red")
+
+
+# Current Age
+age <- unique(dfaddress$currentAge_exact)
+agelabel <- c("15", "20", "25", "30", "35", "40", "45", "49")
+
+
+post.mean.age <- model_besag_re$summary.random$currentAge_exact[, "mean"]
+post.li.age <- model_besag_re$summary.random$currentAge_exact[, "0.025quant"]
+post.ui.age <- model_besag_re$summary.random$currentAge_exact[, "0.975quant"]
+
+par(las=1)  ## cosmetic: horizontal y-axis labels are nicer
+plotCI(1:length(age),post.mean.age,ui=post.ui.age,li=post.li.age,col="blue",scol="black",
+       axes=FALSE,   ## disable axes (including tick labels)
+       xlab="Age of the women at survey time",      ## suppress x-axis label
+       ylab = "Partial effect of age at the survey time",
+       ylim=c(-2,2),   ## specify y-axis limits
+       cex=1.5,
+       cex.lab = 1.5,
+       cex.axis = 1.5
+)
+axis(side=2)         ## add default y-axis (ticks+labels)
+axis(side=1,at=c(1, 61, 121, 181, 241, 301, 361, 409),  ## add custom x-axis
+     label=agelabel)
+box(bty="l")         ## add box
+abline(h=0, lty=4, col="red")
+
+
+
+
+RE_besag <- model_besag_re$summary.random$District[2]
+# plot(density(RE_linear$mean)) # density of district effect means: posterior means
+district_means_besag_re <- as.data.frame(cbind(unique(bang_map$id), RE_besag))
+colnames(district_means_besag_re) <- c("District", "District_Mean")
+
+m1_besag_re <- ggplot() + 
+  geom_map(data = district_means_besag_re, 
+           aes(map_id = District, fill = District_Mean),map = bang_map) + 
+  expand_limits(x = bang_map$long, y = bang_map$lat) + 
+  scale_fill_gradient2(low = "royalblue3",mid = "snow",
+                       midpoint = 0,high = "violetred3",
+                       limits=c(min(district_means_besag_re$District_Mean),
+                                max(district_means_besag_re$District_Mean)), na.value="grey50") +
+  geom_text(data = district_centroid, aes(x = longc, y = latc, label = id), 
+            check_overlap = TRUE, size = 4)
+
+m1_besag_re
+
+
+
+
+iid_re <- model_iid_re$summary.random$District[2]
+# plot(density(RE_linear$mean)) # density of district effect means: posterior means
+district_means_iid_re <- as.data.frame(cbind(unique(bang_map$id), iid_re))
+colnames(district_means_iid_re) <- c("District", "District_Mean")
+
+m1_iid_re <- ggplot() + 
+  geom_map(data = district_means_iid_re, 
+           aes(map_id = District, fill = District_Mean),map = bang_map) + 
+  expand_limits(x = bang_map$long, y = bang_map$lat) + 
+  scale_fill_gradient2(low = "royalblue3",mid = "snow",
+                       midpoint = 0, high = "violetred3",
+                       limits=c(min(district_means_iid_re$District_Mean),
+                                max(district_means_iid_re$District_Mean)), na.value="grey50") +
+  geom_text(data = district_centroid, aes(x = longc, y = latc, label = id), 
+            check_overlap = TRUE, size = 4)
+
+m1_iid_re
