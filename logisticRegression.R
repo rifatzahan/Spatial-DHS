@@ -1,5 +1,3 @@
-## Logistic regression with no spatial component
-
 
 ###################
 ### Model : No  ###
@@ -88,8 +86,6 @@ model_no_rer_w2_1 <- inla(formula_no_re_rw2,data=dfaddress,family="binomial",
                         ))
 
 summary(model_no_rer_w2_1)
-
-
 
 ###################
 ### Model : IID ###
@@ -700,3 +696,331 @@ m1_iid_re <- ggplot() +
             check_overlap = TRUE, size = 4)
 
 m1_iid_re
+
+
+linearmeanno <- model_no$summary.linear.predictor$mean
+linearmeaniid <- model_iid$summary.linear.predictor$mean
+linearmeanbesag2 <- model_besag2$summary.linear.predictor$mean
+linearmeanbym <- model_bym$summary.linear.predictor$mean
+
+ypostmeanno <-exp(linearmeanno)/(1+exp(linearmeanno))
+ypostmeaniid <-exp(linearmeaniid)/(1+exp(linearmeaniid))
+ypostmeanbesag2 <-exp(linearmeanbesag2)/(1+exp(linearmeanbesag2))
+ypostmeanbym <-exp(linearmeanbym)/(1+exp(linearmeanbym))
+
+
+MSEno <- mean((dfaddress$status - ypostmeanno)^2)
+MSEiid <- mean((dfaddress$status - ypostmeaniid)^2)
+MSEbesag2 <- mean((dfaddress$status - ypostmeanbesag2)^2)
+MSEbym <- mean((dfaddress$status - ypostmeanbym)^2)
+
+MSEno
+MSEiid
+MSEbesag2
+MSEbym
+
+
+WAIC <- c(
+  model_no$waic$waic,
+  model_iid$waic$waic,
+  model_besag$waic$waic,
+  model_bym$waic$waic,
+  model_no_re$waic$waic, # lowest among no RE 
+  model_iid_re$waic$waic, # low
+  model_besag_re$waic$waic, # lowest
+  model_bym_re$waic$waic, # low
+  model_no_rer_w2$waic$waic,
+  model_iid_re_rw2$waic$waic,
+  model_besag_re_rw2$waic$waic, # low
+  model_bym_re_rw2$waic$waic)
+
+WAIC
+min(WAIC)
+
+DIC <- c(
+  model_no$dic$dic,
+  model_iid$dic$dic,
+  model_besag$dic$dic,
+  model_bym$dic$dic,
+  model_no_re$dic$dic,
+  model_iid_re$dic$dic,
+  model_besag_re$dic$dic,
+  model_bym_re$dic$dic,
+  model_no_rer_w2$dic$dic,
+  model_iid_re_rw2$dic$dic,
+  model_besag_re_rw2$dic$dic,
+  model_bym_re_rw2$dic$dic)
+
+DIC
+
+summary(model_no)
+summary(model_iid)
+summary(model_besag)
+summary(model_bym)
+summary(model_no_re)
+summary(model_iid_re)
+summary(model_besag_re)
+summary(model_bym_re)
+summary(model_no_rer_w2)
+summary(model_iid_re_rw2)
+summary(model_besag_re_rw2)
+summary(model_bym_re_rw2)
+
+pD <- c(
+  model_no$dic$dic,
+  model_iid$dic$dic,
+  model_besag$dic$dic,
+  model_bym$dic$dic,
+  model_no_re$dic$dic,
+  model_iid_re$dic$dic,
+  model_besag_re$dic$dic,
+  model_bym_re$dic$dic,
+  model_no_rer_w2$dic$dic,
+  model_iid_re_rw2$dic$dic,
+  model_besag_re_rw2$dic$dic,
+  model_bym_re_rw2$dic$dic)
+
+DIC
+
+
+
+m1_besag
+m1_iid
+
+
+pdf(file="m1_besag.pdf")
+m1_besag
+dev.off()
+
+
+
+pdf(file="m1_iid.pdf")
+m1_iid
+dev.off()
+
+
+summary(model_no_re)
+summary(model_iid_re)
+summary(model_bym_re)
+
+
+odds_ratio_no_re <- as.data.frame(round(exp(cbind(OR = as.data.frame(model_no_re$summary.fixed)[1], 
+                           LB = as.data.frame(model_no_re$summary.fixed)[3], 
+                           UB = as.data.frame(model_no_re$summary.fixed)[5])),2))
+
+odds_ratio_iid_re <- as.data.frame(round(exp(cbind(OR = as.data.frame(model_iid_re$summary.fixed)[1], 
+                               LB = as.data.frame(model_iid_re$summary.fixed)[3], 
+                               UB = as.data.frame(model_iid_re$summary.fixed)[5])), 2))
+
+odds_ratio_bym_re <- as.data.frame(round(exp(cbind(OR = as.data.frame(model_bym_re$summary.fixed)[1], 
+                                                  LB = as.data.frame(model_bym_re$summary.fixed)[3], 
+                                                  UB = as.data.frame(model_bym_re$summary.fixed)[5])), 2))
+
+odds_ratio_besag_no <- as.data.frame(round(exp(cbind(OR = as.data.frame(model_besag$summary.fixed)[1], 
+                                                     LB = as.data.frame(model_besag$summary.fixed)[3], 
+                                                     UB = as.data.frame(model_besag$summary.fixed)[5])), 2))
+odds_ratio_besag_re <- as.data.frame(round(exp(cbind(OR = as.data.frame(model_besag_re$summary.fixed)[1], 
+                                                     LB = as.data.frame(model_besag_re$summary.fixed)[3], 
+                                                     UB = as.data.frame(model_besag_re$summary.fixed)[5])), 2))
+odds_ratio_besag_re_rw2 <- as.data.frame(round(exp(cbind(
+  OR = as.data.frame(model_besag_re_rw2$summary.fixed)[1],
+  LB = as.data.frame(model_besag_re_rw2$summary.fixed)[3],
+  UB = as.data.frame(model_besag_re_rw2$summary.fixed)[5])), 2))
+
+summary(model_besag_re_rw2)
+
+library(xtable)
+xtable(odds_ratio_besag_re_rw2)
+
+df_odds_no_re <- cbind(odds_ratio_no_re[1], no=do.call(paste, c(odds_ratio_no_re[-1], sep=",")))
+df_odds_iid_re <- cbind(odds_ratio_iid_re[1], no=do.call(paste, c(odds_ratio_iid_re[-1], sep=",")))
+df_odds_besag_re <- cbind(odds_ratio_besag_re[1], no=do.call(paste, c(odds_ratio_besag_re[-1], sep=",")))
+df_odds_bym_re <- cbind(odds_ratio_bym_re[1], no=do.call(paste, c(odds_ratio_bym_re[-1], sep=",")))
+
+
+## ROC, AUC ##
+
+predictedprob <- model_besag_re$summary.fitted.values$mean
+
+pred <-prediction(predictedprob, as.numeric(dfaddress$status))
+perf <- performance(pred,"tpr","fpr")
+plot(perf)
+
+
+plot(perf, lwd=2, colorize=TRUE)
+lines(x=c(0, 1), y=c(0, 1), col="black", lwd=1)
+
+auc = performance(pred, "auc")
+auc = unlist(auc@y.values)
+auc
+
+## District-level Average of Predicted Probability of mean
+
+## CAR
+predictedprob <- model_besag_re$summary.random$District$mean
+dist_name <- model_besag_re$summary.random$District$ID
+district_means_besag_re_pp <- data.frame(dist_name, predictedprob)
+str(district_means_besag_re_pp)
+colnames(district_means_besag_re_pp) <- c("District", "Mean")
+
+
+m_post_mean_CAR <- ggplot() + 
+  geom_map(data = district_means_besag_re_pp, 
+           aes(map_id = District, fill = Mean),map = bang_map) + 
+  expand_limits(x = bang_map$long, y = bang_map$lat) + 
+  scale_fill_gradient2(low = "royalblue4",mid = "snow",
+                       midpoint = (max(district_means_besag_re_pp$Mean) + 
+                                     min(district_means_besag_re_pp$Mean))/2,high = "violetred3",
+                       limits=c(min(district_means_besag_re_pp$Mean),
+                                max(district_means_besag_re_pp$Mean)), na.value="grey50") +
+  geom_text(data = district_centroid, aes(x = longc, y = latc, label = id), 
+            check_overlap = TRUE, size = 3)
+
+m_post_mean_CAR
+
+## IID
+
+predictedprob <- model_iid_re$summary.random$District$mean
+dist_name <- model_iid_re$summary.random$District$ID
+district_means_iid_re_pp <- data.frame(dist_name, predictedprob)
+str(district_means_iid_re_pp)
+colnames(district_means_iid_re_pp) <- c("District", "Mean")
+
+
+m_post_mean_IID <- ggplot() + 
+  geom_map(data = district_means_iid_re_pp, 
+           aes(map_id = District, fill = Mean),map = bang_map) + 
+  expand_limits(x = bang_map$long, y = bang_map$lat) + 
+  scale_fill_gradient2(low = "royalblue4",mid = "snow",
+                       midpoint = (max(district_means_iid_re_pp$Mean) + 
+                                     min(district_means_iid_re_pp$Mean))/2,high = "violetred3",
+                       limits=c(min(district_means_iid_re_pp$Mean),
+                                max(district_means_iid_re_pp$Mean)), na.value="grey50") +
+  geom_text(data = district_centroid, aes(x = longc, y = latc, label = id), 
+            check_overlap = TRUE, size = 3)
+
+m_post_mean_IID
+
+
+
+
+
+## District-level Average of Predicted Probability of standard deviation
+
+## CAR
+predictedprob <- model_besag_re$summary.random$District$sd
+dist_name <- model_besag_re$summary.random$District$ID
+district_means_besag_re_pp <- data.frame(dist_name, predictedprob)
+str(district_means_besag_re_pp)
+colnames(district_means_besag_re_pp) <- c("District", "SD")
+
+
+m_post_sd_CAR <- ggplot() + 
+  geom_map(data = district_means_besag_re_pp, 
+           aes(map_id = District, fill = SD),map = bang_map) + 
+  expand_limits(x = bang_map$long, y = bang_map$lat) + 
+  scale_fill_gradient2(low = "royalblue4",mid = "snow",
+                       midpoint = (max(district_means_besag_re_pp$SD) + 
+                                     min(district_means_besag_re_pp$SD))/2,high = "violetred3",
+                       limits=c(min(district_means_besag_re_pp$SD),
+                                max(district_means_besag_re_pp$SD)), na.value="grey50") +
+  geom_text(data = district_centroid, aes(x = longc, y = latc, label = id), 
+            check_overlap = TRUE, size = 3)
+
+m_post_sd_CAR
+
+## IID
+
+predictedprob <- model_iid_re$summary.random$District$sd
+dist_name <- model_iid_re$summary.random$District$ID
+district_means_iid_re_pp <- data.frame(dist_name, predictedprob)
+str(district_means_iid_re_pp)
+colnames(district_means_iid_re_pp) <- c("District", "SD")
+
+
+m_post_sd_IID <- ggplot() + 
+  geom_map(data = district_means_iid_re_pp, 
+           aes(map_id = District, fill = SD),map = bang_map) + 
+  expand_limits(x = bang_map$long, y = bang_map$lat) + 
+  scale_fill_gradient2(low = "royalblue4",mid = "snow",
+                       midpoint = (max(district_means_iid_re_pp$SD) + 
+                                     min(district_means_iid_re_pp$SD))/2,high = "violetred3",
+                       limits=c(min(district_means_iid_re_pp$SD),
+                                max(district_means_iid_re_pp$SD)), na.value="grey50") +
+  geom_text(data = district_centroid, aes(x = longc, y = latc, label = id), 
+            check_overlap = TRUE, size = 3)
+
+m_post_sd_IID
+
+
+## correlation coefficient between current_age, cohab_age
+
+cor(dfaddress$currentAge_exact, dfaddress$cohabAgeC, method = c("spearman"))
+
+# Pearson's cor cef: -0.0400129
+# kendal: -0.05596674
+# spearman: -0.08926271
+
+
+
+#### OR Plot ####
+
+library(tidyverse)
+library(ggplot2)
+library(broom)
+
+tdf = as.data.frame(Titanic)
+m1 = glm(Survived == "Yes" ~ Class + Sex, data = tdf, family = "binomial", weights = Freq)
+m1_preds = tidy(m1, conf.int = TRUE, exponentiate = TRUE) %>%
+  mutate(Model = "m1")
+tdf$FreqScrambled = sample(tdf$Freq)
+m2 = glm(Survived == "Yes" ~ Class + Sex, data = tdf, 
+         family = "binomial", weights = FreqScrambled)
+m2_preds = tidy(m2, conf.int = TRUE, exponentiate = TRUE) %>%
+  mutate(Model = "m2")
+ors = bind_rows(m1_preds, m2_preds)
+ors
+
+dodger = position_dodge(width = 0.3)
+
+
+odds_ratio_besag$Model <- rep("Linear", dim(odds_ratio_besag)[1])
+odds_ratio_besag_re$Model <- rep("RW1", dim(odds_ratio_besag_re)[1])
+
+odds_ratio_besag$Effect <- row.names(odds_ratio_besag)
+odds_ratio_besag_re$Effect <- row.names(odds_ratio_besag_re)
+
+# remove last row
+# odds_ratio_besag <- odds_ratio_besag[-nrow(odds_ratio_besag),] 
+
+
+#oddsratio_df <- rbind(odds_ratio_besag, odds_ratio_besag_re)
+# write.csv(oddsratio_df, "oddsratio_df.csv")
+oddsratio_df <- read.csv("oddsratio_df.csv")
+oddsratio_df$Effect <- factor(oddsratio_df$Effect,
+                              levels = c("totalChildrenBorn#4 or more", "totalChildrenBorn#3",
+                                         "totalChildrenBorn#2", "totalChildrenBorn#1",
+                                         "maritalStatus_Widowed", "maritalStatus_Divorced", 
+                                         "maritalStatus_Separated", 
+                                         "wealth_Richest", "wealth_Richer", "wealth_Middle",
+                                         "wealth_Poorer", "occupation_Yes", "residence_Urban"
+                                          ))
+str(oddsratio_df)
+
+ggplot(oddsratio_df, aes(y = OR, x = Effect, color = Model)) +
+  geom_pointrange(aes(ymin = oddsratio_df$LL, ymax = oddsratio_df$UL),
+                  position = dodger,
+                  size = 0.65) +
+  geom_hline(yintercept = 1.0, linetype = "dotted", size = 1) +
+  scale_y_log10(breaks = c(0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10),
+                minor_breaks = NULL) +
+  labs(y = "Odds ratio", x = "") +
+  coord_flip(ylim = c(0.2, 2.0)) +
+  theme_bw() + theme(text = element_text(size=17)) +
+  scale_color_brewer(palette="Set1")
+
+
+plot_random_effects(model_besag_re)
+
+inla.list.models("prior")
+inla.set.control.fixed.default() 
