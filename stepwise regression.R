@@ -26,6 +26,5 @@ result <- INLAstep(fam1 = "binomial",
 
 result$best_formula
 
-
 autoplot(result$best_model, which = c(1, 5), CI = TRUE)
 
